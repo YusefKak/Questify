@@ -1,3 +1,12 @@
+require('dotenv').config()
+
+
+console.log(
+  process.env.FEATHERLESS_API_KEY
+    ? 'Featherless key loaded'
+    : 'Featherless key missing'
+)
+const apiKey = process.env.FEATHERLESS_API_KEY
 const express = require("express");
 const cors = require("cors");
 
@@ -5,6 +14,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Questify backend is working' })
+})
 
 app.get("/", (req, res) => {
   res.json({
