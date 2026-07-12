@@ -1,9 +1,28 @@
 import { useState }from 'react'
 import './App.css'
-import './App.css'
+
 
 function App() {
-  const [page, setPage] = useState('home')
+  const [page, setPage] = useState('login')
+  if (page === 'login') {
+  return (
+    <div className="loginPage">
+      <h1>Questify</h1>
+      <p>Turn chores into adventures.</p>
+
+      <input placeholder="Username" />
+
+      <input
+        type="password"
+        placeholder="Password"
+      />
+
+      <button onClick={() => setPage('home')}>
+        Start Adventure
+      </button>
+    </div>
+  )
+}
   if (page === 'scan') {
   return (
     <div className="simplePage">
