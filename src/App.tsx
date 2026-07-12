@@ -4,6 +4,9 @@ import './App.css'
 
 function App() {
   const [page, setPage] = useState('login')
+  const [selectedImage, setSelectedImage] = useState('')
+  const [analysisResult, setAnalysisResult] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   if (page === 'login') {
   return (
     <div className="loginPage">
@@ -24,17 +27,105 @@ function App() {
   )
 }
   if (page === 'scan') {
+  async function analyzeRoom() {
+    if (!selectedImage) {
+      alert('Please choose an image first')
+      return
+    }
+
+    setIsLoading(true)
+    setAnalysisResult('')
+
+    try {
+      const response = await fetch(
+        'http://localhost:5000/api/analyze-room',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            image: selectedImage
+          })
+        }
+      )
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Analysis failed')
+      }
+
+      setAnalysisResult(data.result)
+    } catch (error) {
+      console.error(error)
+      setAnalysisResult('Could not analyze the room.')
+    }
+
+    setIsLoading(false)
+  }
+
+  function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      setSelectedImage(reader.result as string)
+    }
+
+    reader.readAsDataURL(file)
+  }
+
   return (
     <div className="simplePage">
       <h1>Scan Your Room</h1>
-      <p>Upload or take a picture of your room.</p>
+      <p>Upload a picture of your room.</p>
 
-      <button onClick={() => setPage('home')}>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+      />
+
+      {selectedImage && (
+        <img
+          src={selectedImage}
+          alt="Room preview"
+          className="roomPreview"
+        />
+      )}
+
+      <button
+        type="button"
+        onClick={analyzeRoom}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Analyzing...' : 'Analyze Room'}
+      </button>
+
+      {analysisResult && (
+        <div className="analysisResult">
+          <h2>Your Quests</h2>
+          <p>{analysisResult}</p>
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() => setPage('home')}
+      >
         Back Home
       </button>
     </div>
   )
 }
+  
+
 
 if (page === 'quests') {
   return (
