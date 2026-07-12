@@ -8,7 +8,7 @@ function App() {
           <div>
             <p className="welcome">WELCOME BACK</p>
             <h1>
-              Alex <span>the Cleric</span>
+              Rohan <span>Geek</span>
             </h1>
           </div>
 
