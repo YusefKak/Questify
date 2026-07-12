@@ -1,7 +1,62 @@
+import { useState }from 'react'
+import './App.css'
 import './App.css'
 
 function App() {
+  const [page, setPage] = useState('home')
+  if (page === 'scan') {
   return (
+    <div className="simplePage">
+      <h1>Scan Your Room</h1>
+      <p>Upload or take a picture of your room.</p>
+
+      <button onClick={() => setPage('home')}>
+        Back Home
+      </button>
+    </div>
+  )
+}
+
+if (page === 'quests') {
+  return (
+    <div className="simplePage">
+      <h1>Your Quests</h1>
+      <p>Your cleaning quests will appear here.</p>
+
+      <button onClick={() => setPage('home')}>
+        Back Home
+      </button>
+    </div>
+  )
+}
+
+if (page === 'rewards') {
+  return (
+    <div className="simplePage">
+      <h1>Rewards</h1>
+      <p>Your unlocked rewards will appear here.</p>
+
+      <button onClick={() => setPage('home')}>
+        Back Home
+      </button>
+    </div>
+  )
+}
+
+if (page === 'profile') {
+  return (
+    <div className="simplePage">
+      <h1>Profile</h1>
+      <p>Your level and account information will appear here.</p>
+
+      <button onClick={() => setPage('home')}>
+        Back Home
+      </button>
+    </div>
+  )
+}
+  return (
+    
     <div className="app">
       <main className="content">
         <header className="header">
@@ -56,7 +111,8 @@ function App() {
           <p>No scan completed yet</p>
           <h2>Ready for today’s adventure?</h2>
 
-          <button className="scanButton">
+          <button className="scanButton"
+          onClick={() => setPage('scan')}>
             📷 Scan Your Room
           </button>
         </section>
@@ -73,11 +129,30 @@ function App() {
       </main>
 
       <nav className="bottomNav">
-        <button>🏠<span>Home</span></button>
-        <button>📷<span>Scan</span></button>
-        <button>🎯<span>Quests</span></button>
-        <button>🏆<span>Rewards</span></button>
-        <button>👤<span>Profile</span></button>
+    <button onClick={() => setPage('home')}>
+    🏠
+    <span>Home</span>
+    </button>
+
+    <button onClick={() => setPage('scan')}>
+    📷
+    <span>Scan</span>
+    </button>
+
+    <button onClick={() => setPage('quests')}>
+    🎯
+    <span>Quests</span>
+    </button>
+
+   <button onClick={() => setPage('rewards')}>
+    🏆
+    <span>Rewards</span>
+    </button>
+
+    <button onClick={() => setPage('profile')}>
+    👤
+    <span>Profile</span>
+    </button>
       </nav>
     </div>
   )

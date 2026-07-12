@@ -1,3 +1,4 @@
+
 * {
   box-sizing: border-box;
 }
@@ -261,4 +262,21 @@ button {
   .scanCard {
     padding: 28px 20px;
   }
+}
+.simplePage {
+  min-height: 100vh;
+  padding: 40px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #17163a, #071827);
+  color: white;
+}
+
+.simplePage button {
+  margin-top: 20px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 20px;
+  background: #7c65ff;
+  color: white;
+  cursor: pointer;
 }
