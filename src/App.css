@@ -1,3 +1,4 @@
+
 * {
   box-sizing: border-box;
 }
@@ -278,6 +279,7 @@ button {
   .scanCard {
     padding: 28px 20px;
   }
+<<<<<<< HEAD
   .journeyGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -843,4 +845,77 @@ button {
   }
 }
 }
+=======
+}
+.simplePage {
+  min-height: 100vh;
+  padding: 40px 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #17163a, #071827);
+  color: white;
+}
+
+.simplePage button {
+  margin-top: 20px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 20px;
+  background: #7c65ff;
+  color: white;
+  cursor: pointer;
+}
+.loginPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #17163a, #071827);
+  color: white;
+  text-align: center;
+}
+
+.loginPage h1 {
+  margin: 0;
+  font-size: 52px;
+}
+
+.loginPage p {
+  margin: 12px 0 30px;
+  color: #aab3c7;
+}
+
+.loginPage input {
+  width: min(100%, 380px);
+  margin-bottom: 14px;
+  padding: 15px;
+  border: 1px solid #3a4764;
+  border-radius: 14px;
+  background: #1b2943;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+.loginPage input:focus {
+  border-color: #8b6cff;
+}
+
+.loginPage button {
+  width: min(100%, 380px);
+  margin-top: 8px;
+  padding: 15px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #995fff, #6974ff);
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.loginPage button:hover {
+  transform: scale(1.02);
+>>>>>>> 00b1931d6011a35a62b9136c52fe94560e9810cc
 }
