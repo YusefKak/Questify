@@ -13,31 +13,14 @@ body {
 button {
   font: inherit;
 }
-.loadingScreen {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 30px;
-  background: linear-gradient(135deg, #17163a, #071827);
-  color: white;
-  text-align: center;
-}
 
-.dashboardError {
-  margin: 0 0 20px;
-  padding: 14px 16px;
-  border: 1px solid rgba(255, 100, 120, 0.35);
-  border-radius: 14px;
-  background: rgba(120, 25, 45, 0.3);
-  color: #ffb2bf;
-}
 .app {
   min-height: 100vh;
   padding-bottom: 100px;
 }
 
 .content {
-  width: min(100%, 900px);
+  width: min(100%, 1000px);
   margin: 0 auto;
   padding: 32px 20px;
 }
@@ -279,573 +262,6 @@ button {
   .scanCard {
     padding: 28px 20px;
   }
-<<<<<<< HEAD
-  .journeyGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-top: 18px;
-}
-
-.journeyCard {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 20px;
-  border: 1px solid #31405f;
-  border-radius: 22px;
-  background: rgba(29, 43, 68, 0.9);
-  color: white;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    background 0.2s ease;
-}
-
-.journeyCard:hover {
-  transform: translateY(-2px);
-  border-color: #7f65cf;
-  background: rgba(38, 51, 82, 0.98);
-}
-
-.journeyCard > span {
-  flex: 0 0 52px;
-  height: 52px;
-  display: grid;
-  place-items: center;
-  border-radius: 17px;
-  background: #3a327a;
-  font-size: 25px;
-}
-
-.journeyCard strong,
-.journeyCard small {
-  display: block;
-}
-
-.journeyCard strong {
-  font-size: 16px;
-}
-
-.journeyCard small {
-  margin-top: 5px;
-  color: #929eb4;
-}
-
-@media (max-width: 650px) {
-  .journeyGrid {
-    grid-template-columns: 1fr;
-  }
-/* =========================================
-   IN-APP CAMERA LAUNCH
-========================================= */
-
-.cameraLaunchCard {
-  position: relative;
-  min-height: 360px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  overflow: hidden;
-  padding: 40px 28px;
-  border: 1px solid #3b4b6c;
-  border-radius: 32px;
-  background:
-    radial-gradient(
-      circle at 50% 30%,
-      rgba(158, 92, 255, 0.2),
-      transparent 42%
-    ),
-    linear-gradient(
-      145deg,
-      rgba(31, 46, 75, 0.98),
-      rgba(19, 31, 53, 0.98)
-    );
-  text-align: center;
-}
-
-.cameraLaunchGlow {
-  position: absolute;
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  background: rgba(114, 79, 255, 0.14);
-  filter: blur(45px);
-  pointer-events: none;
-}
-
-.cameraLaunchIcon {
-  position: relative;
-  width: 96px;
-  height: 96px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(201, 178, 255, 0.3);
-  border-radius: 32px;
-  background:
-    linear-gradient(
-      135deg,
-      #a05dff,
-      #6574ff
-    );
-  box-shadow:
-    0 20px 45px
-    rgba(106, 83, 255, 0.35);
-  font-size: 43px;
-}
-
-.cameraLaunchText {
-  position: relative;
-  max-width: 500px;
-}
-
-.cameraLaunchText h3 {
-  margin: 0;
-  font-size: 29px;
-}
-
-.cameraLaunchText p {
-  margin: 12px 0 0;
-  color: #aab3c7;
-  line-height: 1.65;
-}
-
-.openCameraButton {
-  position: relative;
-  min-width: 220px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 16px 25px;
-  border: none;
-  border-radius: 999px;
-  background:
-    linear-gradient(
-      90deg,
-      #995fff,
-      #6974ff
-    );
-  color: white;
-  font-weight: 900;
-  font-size: 16px;
-  box-shadow:
-    0 16px 34px
-    rgba(105, 83, 255, 0.36);
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    filter 0.2s ease;
-}
-
-.openCameraButton:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.08);
-}
-
-/* =========================================
-   CAMERA MODAL
-========================================= */
-
-.cameraModalBackdrop {
-  position: fixed;
-  z-index: 1000;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 18px;
-  background: rgba(2, 7, 16, 0.88);
-  backdrop-filter: blur(14px);
-  animation: cameraBackdropIn 0.2s ease;
-}
-
-.cameraModal {
-  width: min(100%, 760px);
-  max-height: calc(100vh - 36px);
-  overflow: hidden;
-  border: 1px solid #485777;
-  border-radius: 30px;
-  background: #101c30;
-  box-shadow:
-    0 35px 100px
-    rgba(0, 0, 0, 0.65);
-  animation: cameraModalIn 0.25s ease;
-}
-
-.cameraModalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  padding: 20px 24px;
-  border-bottom: 1px solid #2e3f5d;
-}
-
-.cameraModalHeader p {
-  margin: 0;
-  color: #9ea8be;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 2.5px;
-}
-
-.cameraModalHeader h2 {
-  margin: 5px 0 0;
-  font-size: 23px;
-}
-
-.closeCameraButton {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #445471;
-  border-radius: 50%;
-  background: #24344f;
-  color: #dce3ef;
-  font-size: 29px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.closeCameraButton:hover {
-  background: #30435f;
-}
-
-.cameraViewport {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  background: #020711;
-}
-
-.liveCameraVideo,
-.capturedRoomImage {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.cameraCanvas {
-  display: none;
-}
-
-/* Camera framing corners */
-
-.cameraCorner {
-  position: absolute;
-  width: 42px;
-  height: 42px;
-  border-color: rgba(255, 255, 255, 0.9);
-  border-style: solid;
-  pointer-events: none;
-}
-
-.cameraCornerTopLeft {
-  top: 30px;
-  left: 30px;
-  border-width: 3px 0 0 3px;
-  border-radius: 12px 0 0 0;
-}
-
-.cameraCornerTopRight {
-  top: 30px;
-  right: 30px;
-  border-width: 3px 3px 0 0;
-  border-radius: 0 12px 0 0;
-}
-
-.cameraCornerBottomLeft {
-  bottom: 30px;
-  left: 30px;
-  border-width: 0 0 3px 3px;
-  border-radius: 0 0 0 12px;
-}
-
-.cameraCornerBottomRight {
-  right: 30px;
-  bottom: 30px;
-  border-width: 0 3px 3px 0;
-  border-radius: 0 0 12px 0;
-}
-
-.cameraGuide {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  padding: 9px 16px;
-  transform: translateX(-50%);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  background: rgba(5, 11, 24, 0.65);
-  text-align: center;
-  backdrop-filter: blur(10px);
-}
-
-.cameraGuide span {
-  display: block;
-  color: white;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.cameraGuide p {
-  margin: 2px 0 0;
-  color: #bec7d8;
-  font-size: 10px;
-}
-
-.cameraLoadingOverlay,
-.cameraErrorOverlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  padding: 28px;
-  background: rgba(5, 11, 24, 0.92);
-  text-align: center;
-}
-
-.cameraSpinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(255, 255, 255, 0.16);
-  border-top-color: #9b68ff;
-  border-radius: 50%;
-  animation: cameraSpin 0.8s linear infinite;
-}
-
-.cameraLoadingOverlay p {
-  color: #b6c0d3;
-}
-
-.cameraErrorOverlay > div {
-  font-size: 46px;
-}
-
-.cameraErrorOverlay h3 {
-  margin: 14px 0 7px;
-  font-size: 24px;
-}
-
-.cameraErrorOverlay p {
-  max-width: 450px;
-  margin: 0;
-  color: #aab3c7;
-  line-height: 1.55;
-}
-
-.cameraErrorOverlay button {
-  margin-top: 20px;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 999px;
-  background:
-    linear-gradient(
-      90deg,
-      #995fff,
-      #6974ff
-    );
-  color: white;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-/* Capture controls */
-
-.cameraCaptureControls {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  padding: 18px 24px 22px;
-  background: #101c30;
-}
-
-.capturePhotoButton {
-  width: 76px;
-  height: 76px;
-  display: grid;
-  place-items: center;
-  padding: 6px;
-  border: 4px solid white;
-  border-radius: 50%;
-  background: transparent;
-  cursor: pointer;
-}
-
-.capturePhotoButton span {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: white;
-  transition:
-    transform 0.12s ease,
-    background 0.12s ease;
-}
-
-.capturePhotoButton:hover span {
-  transform: scale(0.92);
-  background: #d9d9e8;
-}
-
-.capturePhotoButton:active span {
-  transform: scale(0.82);
-}
-
-.capturePhotoButton:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.cameraModeLabel {
-  justify-self: end;
-  color: #b7c0d2;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 2px;
-}
-
-.capturedPhotoControls {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 12px;
-  padding: 19px 22px 23px;
-}
-
-.retakePhotoButton,
-.usePhotoButton {
-  padding: 15px 20px;
-  border-radius: 999px;
-  color: white;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.retakePhotoButton {
-  border: 1px solid #50617f;
-  background: #273751;
-}
-
-.usePhotoButton {
-  border: none;
-  background:
-    linear-gradient(
-      90deg,
-      #995fff,
-      #6974ff
-    );
-  box-shadow:
-    0 12px 28px
-    rgba(105, 83, 255, 0.3);
-}
-
-@keyframes cameraBackdropIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes cameraModalIn {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.97);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes cameraSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* =========================================
-   CAMERA MOBILE
-========================================= */
-
-@media (max-width: 650px) {
-  .cameraModalBackdrop {
-    padding: 0;
-  }
-
-  .cameraModal {
-    width: 100%;
-    height: 100%;
-    max-height: none;
-    display: flex;
-    flex-direction: column;
-    border: none;
-    border-radius: 0;
-  }
-
-  .cameraViewport {
-    flex: 1;
-    aspect-ratio: auto;
-  }
-
-  .cameraModalHeader {
-    padding:
-      max(16px, env(safe-area-inset-top))
-      17px
-      15px;
-  }
-
-  .cameraCaptureControls {
-    padding:
-      17px
-      20px
-      max(22px, env(safe-area-inset-bottom));
-  }
-
-  .capturedPhotoControls {
-    padding:
-      17px
-      17px
-      max(22px, env(safe-area-inset-bottom));
-  }
-
-  .cameraCornerTopLeft,
-  .cameraCornerTopRight {
-    top: 22px;
-  }
-
-  .cameraCornerBottomLeft,
-  .cameraCornerBottomRight {
-    bottom: 22px;
-  }
-
-  .cameraCornerTopLeft,
-  .cameraCornerBottomLeft {
-    left: 22px;
-  }
-
-  .cameraCornerTopRight,
-  .cameraCornerBottomRight {
-    right: 22px;
-  }
-
-  .cameraLaunchCard {
-    min-height: 330px;
-    padding: 32px 20px;
-  }
-}
-}
-=======
 }
 .simplePage {
   min-height: 100vh;
@@ -917,5 +333,193 @@ button {
 
 .loginPage button:hover {
   transform: scale(1.02);
->>>>>>> 00b1931d6011a35a62b9136c52fe94560e9810cc
+}
+.roomPreview {
+  width: min(100%, 500px);
+  margin: 20px 0;
+  border-radius: 18px;
+}
+
+.analysisResult {
+  width: min(100%, 600px);
+  margin: 24px auto;
+  padding: 20px;
+  border-radius: 18px;
+  background: #1b2943;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+/* Continue Journey section */
+
+.journeyGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.journeyCard {
+  min-height: 130px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  border: 1px solid #31405f;
+  border-radius: 22px;
+  background: rgba(29, 43, 68, 0.9);
+  color: white;
+  text-align: left;
+  cursor: pointer;
+
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.journeyCard:hover {
+  transform: translateY(-3px);
+  border-color: #8b6cff;
+}
+
+.journeyCard > span {
+  flex-shrink: 0;
+  width: 55px;
+  height: 55px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 18px;
+  background: #3a327a;
+  font-size: 28px;
+}
+
+.journeyCard div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.journeyCard strong {
+  font-size: 19px;
+}
+
+.journeyCard small {
+  color: #aab3c7;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+
+/* New component pages */
+
+.content > section:not(.stats):not(.card):not(.statusHeader):not(.journeyGrid) {
+  width: min(100%, 750px);
+  margin: 0 auto;
+}
+
+.content button:not(.scanButton):not(.journeyCard) {
+  border: 1px solid #31405f;
+  border-radius: 20px;
+  background: rgba(29, 43, 68, 0.95);
+  color: white;
+}
+
+
+/* Quest cards */
+
+.content button:not(.scanButton):not(.journeyCard):not(.bottomNav button) {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.content button:not(.scanButton):not(.journeyCard):hover {
+  border-color: #8b6cff;
+}
+
+
+/* Improve text spacing inside component cards */
+
+.content button strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.content button small {
+  display: block;
+  color: #aab3c7;
+  line-height: 1.4;
+}
+
+
+/* Active bottom navigation button */
+
+.bottomNav {
+  z-index: 100;
+}
+
+.bottomNav button {
+  padding: 10px 6px;
+  border-radius: 16px;
+}
+
+.bottomNav button:hover {
+  color: white;
+}
+
+.bottomNav .activeNavButton {
+  color: white;
+  background: rgba(139, 108, 255, 0.2);
+}
+
+
+/* Profile and page headings */
+
+.content h1 {
+  margin-top: 0;
+}
+
+.content h2 {
+  line-height: 1.2;
+}
+
+
+/* Prevent text from touching card edges */
+
+.content section button {
+  padding: 20px;
+}
+
+
+/* Mobile */
+
+@media (max-width: 650px) {
+  .journeyGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .journeyCard {
+    min-height: 105px;
+  }
+
+  .journeyTitle {
+    font-size: 25px;
+  }
+}
+.loadingScreen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 30px;
+  background: linear-gradient(135deg, #17163a, #071827);
+  color: white;
+  text-align: center;
+}
+
+.dashboardError {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 100, 120, 0.35);
+  border-radius: 14px;
+  background: rgba(120, 25, 45, 0.3);
+  color: #ffb2bf;
 }
