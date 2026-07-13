@@ -1,0 +1,49 @@
+.cameraSection {
+  width: 100%;
+}
+
+.cameraLaunchCard {
+  padding: 40px;
+  border: 1px solid #31415f;
+  border-radius: 28px;
+  background: rgba(24, 38, 63, 0.94);
+  text-align: center;
+}
+
+.cameraModalBackdrop {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 7, 16, 0.9);
+}
+
+.cameraModal {
+  width: min(100%, 760px);
+  overflow: hidden;
+  border: 1px solid #465a7d;
+  border-radius: 28px;
+  background: #101c30;
+}
+
+.cameraViewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: black;
+}
+
+.liveCameraVideo,
+.capturedRoomImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.cameraCanvas {
+  display: none;
+}

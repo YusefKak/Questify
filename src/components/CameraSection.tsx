@@ -4,12 +4,21 @@ import {
   useState,
 } from "react";
 
+import "./CameraSection.css";
+
+import type {
+  RoomAnalysis,
+} from "../types/RoomAnalysis";
+
 interface CameraSectionProps {
-  onQuestsGenerated?: () => void;
+  onAnalysisComplete: (
+    analysis: RoomAnalysis,
+    imageUrl: string
+  ) => void;
 }
 
 export default function CameraSection({
-  onQuestsGenerated,
+  onAnalysisComplete,
 }: CameraSectionProps) {
   const videoRef =
     useRef<HTMLVideoElement | null>(null);
@@ -26,6 +35,9 @@ export default function CameraSection({
   const [cameraLoading, setCameraLoading] =
     useState(false);
 
+  const [analysisLoading, setAnalysisLoading] =
+    useState(false);
+
   const [capturedImage, setCapturedImage] =
     useState("");
 
@@ -36,19 +48,18 @@ export default function CameraSection({
     useState("");
 
   async function openCamera() {
-    setCameraError("");
-    setCameraLoading(true);
     setCameraOpen(true);
+    setCameraLoading(true);
+    setCameraError("");
     setCapturedImage("");
     setCapturedFile(null);
 
     try {
       if (
-        !navigator.mediaDevices ||
-        !navigator.mediaDevices.getUserMedia
+        !navigator.mediaDevices?.getUserMedia
       ) {
         throw new Error(
-          "This browser does not support camera access."
+          "Your browser does not support camera access."
         );
       }
 
@@ -58,13 +69,16 @@ export default function CameraSection({
             facingMode: {
               ideal: "environment",
             },
+
             width: {
               ideal: 1920,
             },
+
             height: {
               ideal: 1080,
             },
           },
+
           audio: false,
         });
 
@@ -72,36 +86,19 @@ export default function CameraSection({
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-
         await videoRef.current.play();
       }
     } catch (error) {
       console.error(
-        "Could not open camera:",
+        "Camera error:",
         error
       );
 
-      if (
-        error instanceof DOMException &&
-        error.name === "NotAllowedError"
-      ) {
-        setCameraError(
-          "Camera permission was denied. Allow camera access in your browser settings."
-        );
-      } else if (
-        error instanceof DOMException &&
-        error.name === "NotFoundError"
-      ) {
-        setCameraError(
-          "No available camera was found."
-        );
-      } else {
-        setCameraError(
-          error instanceof Error
-            ? error.message
-            : "Could not open the camera."
-        );
-      }
+      setCameraError(
+        error instanceof Error
+          ? error.message
+          : "Could not open the camera."
+      );
     } finally {
       setCameraLoading(false);
     }
@@ -126,6 +123,7 @@ export default function CameraSection({
 
     setCameraOpen(false);
     setCameraLoading(false);
+    setAnalysisLoading(false);
     setCameraError("");
     setCapturedImage("");
     setCapturedFile(null);
@@ -136,6 +134,10 @@ export default function CameraSection({
     const canvas = canvasRef.current;
 
     if (!video || !canvas) {
+      setCameraError(
+        "The camera is not ready."
+      );
+
       return;
     }
 
@@ -144,7 +146,7 @@ export default function CameraSection({
       video.videoHeight === 0
     ) {
       setCameraError(
-        "The camera is still loading. Try again."
+        "Wait for the camera to finish loading."
       );
 
       return;
@@ -153,11 +155,12 @@ export default function CameraSection({
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
-    const context = canvas.getContext("2d");
+    const context =
+      canvas.getContext("2d");
 
     if (!context) {
       setCameraError(
-        "Could not capture the image."
+        "Could not capture the photo."
       );
 
       return;
@@ -171,11 +174,17 @@ export default function CameraSection({
       canvas.height
     );
 
+    const imageUrl =
+      canvas.toDataURL(
+        "image/jpeg",
+        0.9
+      );
+
     canvas.toBlob(
       (blob) => {
         if (!blob) {
           setCameraError(
-            "Could not create the captured image."
+            "Could not create the image."
           );
 
           return;
@@ -189,30 +198,19 @@ export default function CameraSection({
           }
         );
 
-        const imageUrl =
-          URL.createObjectURL(blob);
-
-        setCapturedImage((previousUrl) => {
-          if (previousUrl) {
-            URL.revokeObjectURL(previousUrl);
-          }
-
-          return imageUrl;
-        });
-
+        setCapturedImage(imageUrl);
         setCapturedFile(file);
+        setCameraError("");
+
         stopCamera();
       },
+
       "image/jpeg",
       0.9
     );
   }
 
   async function retakePhoto() {
-    if (capturedImage) {
-      URL.revokeObjectURL(capturedImage);
-    }
-
     setCapturedImage("");
     setCapturedFile(null);
     setCameraError("");
@@ -220,33 +218,103 @@ export default function CameraSection({
     await openCamera();
   }
 
-  function usePhoto() {
+  async function analyzePhoto() {
     if (!capturedFile) {
+      setCameraError(
+        "Capture a photo first."
+      );
+
       return;
     }
 
-    /*
-      capturedFile is the actual File object
-      you will later send to Featherless.
+    try {
+      setAnalysisLoading(true);
+      setCameraError("");
 
-      Example:
-      const formData = new FormData();
-      formData.append("roomImage", capturedFile);
-    */
+      const formData =
+        new FormData();
 
-    closeCamera();
-    onQuestsGenerated?.();
+      formData.append(
+        "roomImage",
+        capturedFile
+      );
+
+      const response = await fetch(
+        "http://localhost:3001/api/analyze-room",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const responseText =
+        await response.text();
+
+      let result: unknown;
+
+      try {
+        result =
+          JSON.parse(responseText);
+      } catch {
+        throw new Error(
+          "The backend returned an invalid response."
+        );
+      }
+
+      if (!response.ok) {
+        const errorResult =
+          result as {
+            error?: string;
+          };
+
+        throw new Error(
+          errorResult.error ||
+            "Could not generate quests."
+        );
+      }
+
+      const analysis =
+        result as RoomAnalysis;
+
+      if (
+        !Array.isArray(
+          analysis.quests
+        ) ||
+        analysis.quests.length === 0
+      ) {
+        throw new Error(
+          "The backend returned no quests."
+        );
+      }
+
+      onAnalysisComplete(
+        analysis,
+        capturedImage
+      );
+
+      stopCamera();
+      setCameraOpen(false);
+    } catch (error) {
+      console.error(
+        "Quest generation error:",
+        error
+      );
+
+      setCameraError(
+        error instanceof Error
+          ? error.message
+          : "Could not generate quests."
+      );
+    } finally {
+      setAnalysisLoading(false);
+    }
   }
 
   useEffect(() => {
     return () => {
       stopCamera();
-
-      if (capturedImage) {
-        URL.revokeObjectURL(capturedImage);
-      }
     };
-  }, [capturedImage]);
+  }, []);
 
   return (
     <section className="cameraSection">
@@ -256,17 +324,17 @@ export default function CameraSection({
             DAILY SCAN
           </p>
 
-          <h2>Discover Today's Quests</h2>
+          <h2>
+            Discover Today's Quests
+          </h2>
         </div>
 
         <span className="scanStatus">
-          NOT SCANNED
+          READY
         </span>
       </div>
 
       <section className="cameraLaunchCard">
-        <div className="cameraLaunchGlow" />
-
         <div className="cameraLaunchIcon">
           📷
         </div>
@@ -275,9 +343,8 @@ export default function CameraSection({
           <h3>Scan Your Room</h3>
 
           <p>
-            Open the Questify camera, capture your
-            room, and discover activities you can
-            complete right now.
+            Take a room photo and generate
+            personalized quests.
           </p>
         </div>
 
@@ -286,8 +353,7 @@ export default function CameraSection({
           className="openCameraButton"
           onClick={openCamera}
         >
-          <span>📷</span>
-          Open Camera
+          📷 Open Camera
         </button>
       </section>
 
@@ -296,11 +362,12 @@ export default function CameraSection({
           <span>💡</span>
 
           <div>
-            <strong>Capture the whole room</strong>
+            <strong>
+              Capture the whole room
+            </strong>
 
             <p>
-              Stand near a doorway or corner so more
-              objects are visible.
+              Stand near a doorway or corner.
             </p>
           </div>
         </article>
@@ -309,11 +376,12 @@ export default function CameraSection({
           <span>☀️</span>
 
           <div>
-            <strong>Use good lighting</strong>
+            <strong>
+              Use good lighting
+            </strong>
 
             <p>
-              A bright photo helps the scanner find
-              more useful quests.
+              Keep the room clearly visible.
             </p>
           </div>
         </article>
@@ -324,7 +392,6 @@ export default function CameraSection({
           className="cameraModalBackdrop"
           role="dialog"
           aria-modal="true"
-          aria-label="Questify room camera"
         >
           <section className="cameraModal">
             <header className="cameraModalHeader">
@@ -337,7 +404,7 @@ export default function CameraSection({
                 type="button"
                 className="closeCameraButton"
                 onClick={closeCamera}
-                aria-label="Close camera"
+                disabled={analysisLoading}
               >
                 ×
               </button>
@@ -363,7 +430,8 @@ export default function CameraSection({
               )}
 
               {!capturedImage &&
-                !cameraError && (
+                !cameraError &&
+                !cameraLoading && (
                   <>
                     <div className="cameraCorner cameraCornerTopLeft" />
                     <div className="cameraCorner cameraCornerTopRight" />
@@ -371,9 +439,13 @@ export default function CameraSection({
                     <div className="cameraCorner cameraCornerBottomRight" />
 
                     <div className="cameraGuide">
-                      <span>Move slowly</span>
+                      <span>
+                        Hold your camera steady
+                      </span>
+
                       <p>
-                        Keep the room inside the frame
+                        Keep the room inside the
+                        frame
                       </p>
                     </div>
                   </>
@@ -382,24 +454,59 @@ export default function CameraSection({
               {cameraLoading && (
                 <div className="cameraLoadingOverlay">
                   <div className="cameraSpinner" />
-                  <p>Opening camera...</p>
+
+                  <h3>
+                    Opening camera
+                  </h3>
+
+                  <p>
+                    Allow camera access if
+                    prompted.
+                  </p>
                 </div>
               )}
 
-              {cameraError && (
-                <div className="cameraErrorOverlay">
-                  <div>⚠️</div>
-                  <h3>Camera unavailable</h3>
-                  <p>{cameraError}</p>
+              {analysisLoading && (
+                <div className="cameraLoadingOverlay">
+                  <div className="cameraSpinner" />
 
-                  <button
-                    type="button"
-                    onClick={openCamera}
-                  >
-                    Try Again
-                  </button>
+                  <h3>
+                    Creating quests
+                  </h3>
+
+                  <p>
+                    Questify is processing your
+                    room photo.
+                  </p>
                 </div>
               )}
+
+              {cameraError &&
+                !capturedImage && (
+                  <div className="cameraErrorOverlay">
+                    <div>⚠️</div>
+
+                    <h3>
+                      Camera unavailable
+                    </h3>
+
+                    <p>{cameraError}</p>
+
+                    <button
+                      type="button"
+                      onClick={openCamera}
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                )}
+
+              {cameraError &&
+                capturedImage && (
+                  <div className="cameraErrorBanner">
+                    {cameraError}
+                  </div>
+                )}
             </div>
 
             <canvas
@@ -409,7 +516,7 @@ export default function CameraSection({
 
             {!capturedImage ? (
               <footer className="cameraCaptureControls">
-                <div className="cameraControlSpacer" />
+                <div />
 
                 <button
                   type="button"
@@ -419,7 +526,7 @@ export default function CameraSection({
                     cameraLoading ||
                     Boolean(cameraError)
                   }
-                  aria-label="Capture room photo"
+                  aria-label="Take photo"
                 >
                   <span />
                 </button>
@@ -434,6 +541,7 @@ export default function CameraSection({
                   type="button"
                   className="retakePhotoButton"
                   onClick={retakePhoto}
+                  disabled={analysisLoading}
                 >
                   ↻ Retake
                 </button>
@@ -441,9 +549,12 @@ export default function CameraSection({
                 <button
                   type="button"
                   className="usePhotoButton"
-                  onClick={usePhoto}
+                  onClick={analyzePhoto}
+                  disabled={analysisLoading}
                 >
-                  Use Photo ✨
+                  {analysisLoading
+                    ? "Creating Quests..."
+                    : "Find Quests ✨"}
                 </button>
               </footer>
             )}

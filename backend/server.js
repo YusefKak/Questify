@@ -1,91 +1,279 @@
-require('dotenv').config()
+import dotenv from "dotenv";
+import cors from "cors";
+import express from "express";
+import multer from "multer";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const currentFilePath = fileURLToPath(
+  import.meta.url
+);
 
-console.log(
-  process.env.FEATHERLESS_API_KEY
-    ? 'Featherless key loaded'
-    : 'Featherless key missing'
-)
-const apiKey = process.env.FEATHERLESS_API_KEY
-const express = require("express");
-const cors = require("cors");
+const currentDirectory = path.dirname(
+  currentFilePath
+);
+
+dotenv.config({
+  path: path.join(
+    currentDirectory,
+    ".env"
+  ),
+});
 
 const app = express();
+const PORT = 3001;
+
+const model =
+  process.env.FEATHERLESS_MODEL ||
+  "google/gemma-4-31B-it";
+
+const apiKey =
+  process.env.FEATHERLESS_API_KEY;
 
 app.use(cors());
-app.use(express.json({ limit: '10mb'}));
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Questify backend is working' })
-})
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "Questify backend running 🚀"
-  });
+const upload = multer({
+  storage: multer.memoryStorage(),
+
+  limits: {
+    fileSize: 8 * 1024 * 1024,
+  },
 });
 
-app.get("/quests", (req, res) => {
-  res.json([
-    {
-      id: 1,
-      title: "Defeat the Trash Goblins",
-      xp: 25
-    },
-    {
-      id: 2,
-      title: "Recover Lost Sock",
-      xp: 10
-    }
-  ]);
-});
-app.post('/api/generate-quests', async (req, res) => {
-  try {
-    const response = await fetch(
-      'https://api.featherless.ai/v1/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.FEATHERLESS_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: process.env.FEATHERLESS_MODEL,
-          messages: [
-            {
-              role: 'user',
-              content:
-                req.body.prompt ||
-                'Create 3 cleaning quests for a messy bedroom.'
-            }
-          ]
-        })
-      }
-    )
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      console.error(data)
-
-      return res.status(response.status).json({
-        error: 'Featherless request failed',
-        details: data
-      })
-    }
-
-    const result =
-      data.choices?.[0]?.message?.content ||
-      'No response returned'
-
-    res.json({ result })
-  } catch (error) {
-    console.error(error)
-
-    res.status(500).json({
-      error: 'Could not connect to Featherless'
-    })
+app.get(
+  "/api/health",
+  (_request, response) => {
+    response.json({
+      running: true,
+      model,
+      hasApiKey: Boolean(apiKey),
+      usingFakeQuests: true,
+    });
   }
-})
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
+);
+
+app.post(
+  "/api/analyze-room",
+  upload.single("roomImage"),
+
+  async (request, response) => {
+    try {
+      console.log(
+        "Fake room analysis request received."
+      );
+
+      if (!request.file) {
+        return response
+          .status(400)
+          .json({
+            error:
+              "No room image was received.",
+          });
+      }
+
+      console.log(
+        "Image received:",
+        request.file.originalname,
+        request.file.size,
+        request.file.mimetype
+      );
+
+      return response.json({
+        roomSummary:
+          "Your room is fairly organized, but there are several quick wins that can make it cleaner.",
+
+        cleanlinessScore: 7,
+
+        encouragement:
+          "Complete a few quests to level up!",
+
+        detectedAreas: [
+          {
+            id: "area-1",
+            label: "Desk",
+            box_2d: [
+              170,
+              120,
+              520,
+              430,
+            ],
+            questId: "quest-1",
+          },
+
+          {
+            id: "area-2",
+            label: "Backpack",
+            box_2d: [
+              540,
+              620,
+              900,
+              900,
+            ],
+            questId: "quest-2",
+          },
+
+          {
+            id: "area-3",
+            label: "Bed",
+            box_2d: [
+              180,
+              520,
+              640,
+              980,
+            ],
+            questId: "quest-3",
+          },
+
+          {
+            id: "area-4",
+            label: "Tennis Racket",
+            box_2d: [
+              70,
+              760,
+              500,
+              940,
+            ],
+            questId: "quest-4",
+          },
+
+          {
+            id: "area-5",
+            label: "Belts",
+            box_2d: [
+              420,
+              60,
+              760,
+              180,
+            ],
+            questId: "quest-5",
+          },
+        ],
+
+        quests: [
+          {
+            id: "quest-1",
+            title: "Clean Your Desk",
+
+            description:
+              "Throw away trash, organize papers, and clear the desk surface.",
+
+            evidence:
+              "The desk appears cluttered.",
+
+            category: "cleaning",
+            difficulty: "easy",
+            estimatedMinutes: 10,
+            xpReward: 30,
+            targetAreaIds: [
+              "area-1",
+            ],
+            completed: false,
+          },
+
+          {
+            id: "quest-2",
+            title:
+              "Organize Your Backpack",
+
+            description:
+              "Remove unnecessary items and neatly organize everything inside.",
+
+            evidence:
+              "The backpack is sitting out.",
+
+            category: "organization",
+            difficulty: "easy",
+            estimatedMinutes: 8,
+            xpReward: 25,
+            targetAreaIds: [
+              "area-2",
+            ],
+            completed: false,
+          },
+
+          {
+            id: "quest-3",
+            title: "Make Your Bed",
+
+            description:
+              "Straighten the blankets, fix the sheets, and arrange the pillows.",
+
+            evidence:
+              "The bed appears unmade.",
+
+            category: "cleaning",
+            difficulty: "easy",
+            estimatedMinutes: 5,
+            xpReward: 20,
+            targetAreaIds: [
+              "area-3",
+            ],
+            completed: false,
+          },
+
+          {
+            id: "quest-4",
+            title:
+              "Put Away Your Tennis Racket",
+
+            description:
+              "Return your tennis racket to its proper storage location.",
+
+            evidence:
+              "Sports equipment was left out.",
+
+            category: "organization",
+            difficulty: "easy",
+            estimatedMinutes: 2,
+            xpReward: 15,
+            targetAreaIds: [
+              "area-4",
+            ],
+            completed: false,
+          },
+
+          {
+            id: "quest-5",
+            title: "Hang Up Your Belts",
+
+            description:
+              "Collect the belts and hang or store them neatly.",
+
+            evidence:
+              "Belts appear to be left out.",
+
+            category: "organization",
+            difficulty: "easy",
+            estimatedMinutes: 3,
+            xpReward: 15,
+            targetAreaIds: [
+              "area-5",
+            ],
+            completed: false,
+          },
+        ],
+      });
+    } catch (error) {
+      console.error(
+        "Fake room analysis failed:",
+        error
+      );
+
+      return response
+        .status(500)
+        .json({
+          error:
+            error instanceof Error
+              ? error.message
+              : "Room analysis failed.",
+        });
+    }
+  }
+);
+
+app.listen(PORT, () => {
+  console.log(
+    `Questify backend running at http://localhost:${PORT}`
+  );
 });

@@ -1,93 +1,300 @@
-interface QuestPreview {
-  id: number;
-  icon: string;
-  title: string;
-  description: string;
-  difficulty: string;
-  minutes: number;
-  xp: number;
+import {
+  useState,
+} from "react";
+
+import type {
+  RoomAnalysis,
+} from "../types/RoomAnalysis";
+
+interface QuestsSectionProps {
+  analysis: RoomAnalysis | null;
+  imageUrl: string;
+  onScanRoom: () => void;
+
+  onQuestComplete: (
+    questId: string,
+    xpReward: number
+  ) => Promise<void>;
 }
 
-const sampleQuests: QuestPreview[] = [
-  {
-    id: 1,
-    icon: "🛏️",
-    title: "Restore the Sleeping Chamber",
-    description: "Make your bed and arrange the pillows.",
-    difficulty: "Easy",
-    minutes: 4,
-    xp: 15,
-  },
-  {
-    id: 2,
-    icon: "📚",
-    title: "Organize the Knowledge Tower",
-    description: "Stack or shelve the books around your room.",
-    difficulty: "Medium",
-    minutes: 8,
-    xp: 30,
-  },
-  {
-    id: 3,
-    icon: "👕",
-    title: "Defeat the Laundry Pile",
-    description: "Collect loose clothing and place it in the hamper.",
-    difficulty: "Medium",
-    minutes: 6,
-    xp: 25,
-  },
-];
+export default function QuestsSection({
+  analysis,
+  imageUrl,
+  onScanRoom,
+  onQuestComplete,
+}: QuestsSectionProps) {
+  const [
+    completingQuestId,
+    setCompletingQuestId,
+  ] = useState("");
 
-export default function QuestsSection() {
+  const [
+    completionError,
+    setCompletionError,
+  ] = useState("");
+
+  async function completeQuest(
+    questId: string,
+    xpReward: number
+  ) {
+    try {
+      setCompletionError("");
+      setCompletingQuestId(
+        questId
+      );
+
+      await onQuestComplete(
+        questId,
+        xpReward
+      );
+    } catch (error) {
+      console.error(
+        "Quest completion failed:",
+        error
+      );
+
+      setCompletionError(
+        error instanceof Error
+          ? error.message
+          : "Could not complete the quest."
+      );
+    } finally {
+      setCompletingQuestId("");
+    }
+  }
+
+  if (!analysis) {
+    return (
+      <section className="pageSection">
+        <div className="emptyQuestState">
+          <div>📷</div>
+
+          <h2>No quests yet</h2>
+
+          <p>
+            Scan your room to generate
+            personalized quests.
+          </p>
+
+          <button
+            type="button"
+            onClick={onScanRoom}
+          >
+            Scan Room
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  const completedCount =
+    analysis.quests.filter(
+      (quest) => quest.completed
+    ).length;
+
+  const allCompleted =
+    analysis.quests.length > 0 &&
+    completedCount ===
+      analysis.quests.length;
+
   return (
     <section className="pageSection">
       <div className="sectionHeading">
         <div>
-          <p className="sectionEyebrow">TODAY'S ADVENTURE</p>
+          <p className="sectionEyebrow">
+            ROOM ANALYSIS
+          </p>
+
           <h2>Your Quests</h2>
         </div>
 
         <span className="sectionCounter">
-          0 / {sampleQuests.length}
+          {completedCount}/
+          {analysis.quests.length}
         </span>
       </div>
 
-      <div className="questGrid">
-        {sampleQuests.map((quest) => (
+    {imageUrl && (
+    <section className="annotatedRoomCard">
+        <div className="annotatedImageWrapper">
+        <img
+            src={imageUrl}
+            alt="Analyzed room"
+        />
+
+        {analysis.detectedAreas.map(
+            (area, index) => {
+            const [
+                yMin,
+                xMin,
+                yMax,
+                xMax,
+            ] = area.box_2d;
+
+            const quest =
+                analysis.quests.find(
+                (item) =>
+                    item.id === area.questId
+                );
+
+            return (
+                <div
+                key={area.id}
+                className="questBoundingBox"
+                style={{
+                    top: `${yMin / 10}%`,
+                    left: `${xMin / 10}%`,
+                    width: `${
+                    (xMax - xMin) / 10
+                    }%`,
+                    height: `${
+                    (yMax - yMin) / 10
+                    }%`,
+                }}
+                >
+                <span className="boundingBoxLabel">
+                    {index + 1}.{" "}
+                    {quest?.title ||
+                    area.label}
+                </span>
+                </div>
+            );
+            }
+        )}
+        </div>
+
+        <div className="roomAnalysisSummary">
+        <div>
+            <span>ROOM SCORE</span>
+
+            <strong>
+            {analysis.cleanlinessScore}
+            /10
+            </strong>
+        </div>
+
+        <p>{analysis.roomSummary}</p>
+        </div>
+    </section>
+    )}
+
+      {allCompleted ? (
+        <section className="allQuestsCompleted">
+          <div>🏆</div>
+
+          <h2>
+            Room Adventure Complete!
+          </h2>
+
+          <p>
+            You completed every quest and
+            earned your XP.
+          </p>
+
           <button
             type="button"
-            className="questPreviewCard"
-            key={quest.id}
+            onClick={onScanRoom}
           >
-            <div className="questPreviewIcon">
-              {quest.icon}
-            </div>
+            Scan Again
+          </button>
+        </section>
+      ) : (
+        <p className="analysisEncouragement">
+          ✨ {analysis.encouragement}
+        </p>
+      )}
 
-            <div className="questPreviewContent">
-              <div className="questPreviewTop">
-                <div>
-                  <span>{quest.difficulty}</span>
-                  <h3>{quest.title}</h3>
+      {completionError && (
+        <p className="questCompletionError">
+          {completionError}
+        </p>
+      )}
+
+      <div className="questGrid">
+        {analysis.quests.map(
+          (quest, index) => (
+            <article
+              key={quest.id}
+              className={
+                quest.completed
+                  ? "questPreviewCard questCompletedCard"
+                  : "questPreviewCard"
+              }
+            >
+              <div className="questNumberBadge">
+                {quest.completed
+                  ? "✓"
+                  : index + 1}
+              </div>
+
+              <div className="questPreviewContent">
+                <div className="questPreviewTop">
+                  <div>
+                    <span>
+                      {quest.difficulty}
+                    </span>
+
+                    <h3>
+                      {quest.title}
+                    </h3>
+                  </div>
+
+                  <strong>
+                    +{quest.xpReward} XP
+                  </strong>
                 </div>
 
-                <strong>+{quest.xp} XP</strong>
-              </div>
+                <p>
+                  {quest.description}
+                </p>
 
-              <p>{quest.description}</p>
+                <div className="questPreviewFooter">
+                  <span>
+                    ⏱{" "}
+                    {
+                      quest
+                        .estimatedMinutes
+                    }{" "}
+                    min
+                  </span>
 
-              <div className="questPreviewFooter">
-                <span>⏱ {quest.minutes} min</span>
-                <span>Tap to begin</span>
+                  <span>
+                    {quest.category}
+                  </span>
+                </div>
+
+                <small className="questEvidence">
+                  Detected:{" "}
+                  {quest.evidence}
+                </small>
+
+                <button
+                  type="button"
+                  className="questCompleteButton"
+                  disabled={
+                    quest.completed ||
+                    completingQuestId ===
+                      quest.id
+                  }
+                  onClick={() =>
+                    completeQuest(
+                      quest.id,
+                      quest.xpReward
+                    )
+                  }
+                >
+                  {quest.completed
+                    ? "Quest Completed ✓"
+                    : completingQuestId ===
+                        quest.id
+                      ? "Saving..."
+                      : `Complete Quest · +${quest.xpReward} XP`}
+                </button>
               </div>
-            </div>
-          </button>
-        ))}
+            </article>
+          )
+        )}
       </div>
-
-      <p className="prototypeNotice">
-        These are temporary preview quests. The room model will replace
-        them after scanning is connected.
-      </p>
     </section>
   );
 }
